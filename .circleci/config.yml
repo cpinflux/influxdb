@@ -493,7 +493,7 @@ workflows:
           # These are not passed to workflows executed on forked
           # repositories. In this case, skip the workflow, as it
           # will be executed on merge to main anyways.
-          <<: *nofork_filter
+          <<: *any_filter
           name: build-dev-<< matrix.target >>
           matrix:
             parameters:
@@ -507,7 +507,7 @@ workflows:
       - doc:
           <<: *any_filter
       - build-release:
-          <<: *release_filter
+          <<: *any_filter
           name: build-release-<< matrix.target >>
           matrix:
             parameters:
@@ -519,19 +519,19 @@ workflows:
                 - x86_64-unknown-linux-gnu
                 - x86_64-unknown-linux-musl
       - build-packages:
-          <<: *release_filter
+          <<: *any_filter
           requires:
             - build-release
       - check_package_deb_arm64:
-          <<: *release_filter
+          <<: *any_filter
           requires:
             - build-packages
       - check_package_deb_amd64:
-          <<: *release_filter
+          <<: *any_filter
           requires:
             - build-packages
       - check_package_rpm:
-          <<: *nofork_filter
+          <<: *any_filter
           name:
             check_package_rpm-<< matrix.arch >>
           matrix:
@@ -541,7 +541,7 @@ workflows:
             - build-packages
 
       - sign-packages:
-          <<: *release_filter
+          <<: *any_filter
           requires:
             - build-packages
             - check_package_rpm
@@ -549,7 +549,7 @@ workflows:
             - check_package_deb_amd64
             - test
       - publish-packages:
-          <<: *release_filter
+          <<: *any_filter
           matrix:
             parameters:
               destination: [ releases ]
@@ -562,13 +562,13 @@ workflows:
             - fmt
             - cargo-audit
       - build-docker:
-          <<: *release_filter
+          <<: *any_filter
       - publish-docker:
-          <<: *release_filter
+          <<: *any_filter
           requires:
             - build-docker
       - wait-for-docker:
-          <<: *release_filter
+          <<: *any_filter
           requires:
             - build-docker
             - publish-docker
